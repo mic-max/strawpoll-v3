@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState} from "react";
+import supabase from '../utils/supabase'
 
 const MIN_OPTIONS = 2;
 const MAX_OPTIONS = 16;
@@ -20,7 +21,7 @@ export default function CreatePollForm() {
     });
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     const trimmedOptions = options.map((o) => o.trim()).filter(Boolean);
@@ -29,14 +30,33 @@ export default function CreatePollForm() {
       return;
     }
 
-    const payload = {
-      question: question.trim(),
-      options: trimmedOptions,
-    };
+    const { data, error } = await supabase
+        .from('polls')
+        .insert({ title: question.trim() })
+        .select()
 
-    console.log("Create poll:", payload);
 
-    // TODO: send to Supabase
+    if (error) {
+        console.error(error)
+    } else {
+        console.log(data)
+        console.log(`POLL ID = ${data[0].id}`)
+        const pollId = data[0].id
+    
+        const optionRows = trimmedOptions.map((x, i) => ({
+            poll_id: pollId,
+            id: i,
+            label: x,
+        }));
+
+        const { error } = await supabase.from("options").insert(optionRows);
+        if (error) {
+            console.error(error)
+        } else {
+            console.log(`Added ${optionRows.length} options to poll.`)
+        }
+    }
+
     // show two links, one for voting page, one for results page
   }
 
