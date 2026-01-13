@@ -1,110 +1,120 @@
-import { useState} from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import supabase from '../utils/supabase'
 
 const MIN_OPTIONS = 2;
 const MAX_OPTIONS = 16;
 
 export default function CreatePollForm() {
-  const [question, setQuestion] = useState("");
-  const [options, setOptions] = useState<string[]>(["", ""]);
+    const navigate = useNavigate();
+    const [question, setQuestion] = useState("");
+    const [options, setOptions] = useState<string[]>(["", ""]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    // TODO: maybe load question and options from query params?
 
-  const canAddOption =
+    // Auto-add a new option if last two are filled
+    const canAddOption =
     options.length < MAX_OPTIONS &&
     options[options.length - 1].trim() !== "" &&
     options[options.length - 2].trim() !== "";
-
-  function updateOption(index: number, value: string) {
-    setOptions((prev) => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    const trimmedOptions = options.map((o) => o.trim()).filter(Boolean);
-
-    if (!question.trim() || trimmedOptions.length < MIN_OPTIONS) {
-      return;
-    }
-
-    const { data, error } = await supabase
-        .from('polls')
-        .insert({ title: question.trim() })
-        .select()
-
-
-    if (error) {
-        console.error(error)
-    } else {
-        console.log(data)
-        console.log(`POLL ID = ${data[0].id}`)
-        const pollId = data[0].id
     
-        const optionRows = trimmedOptions.map((x, i) => ({
-            poll_id: pollId,
-            id: i,
-            label: x,
-        }));
-
-        const { error } = await supabase.from("options").insert(optionRows);
-        if (error) {
-            console.error(error)
-        } else {
-            console.log(`Added ${optionRows.length} options to poll.`)
+    useEffect(() => {
+        if (canAddOption) setOptions((prev) => [...prev, ""]);
+    }, [canAddOption]);
+    
+    const updateOption = (index: number, value: string) => {
+        setOptions((prev) => {
+            const next = [...prev];
+            next[index] = value;
+            return next;
+        });
+    };
+    
+    async function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        
+        const trimmedOptions = options.map((o) => o.trim()).filter(Boolean);
+        
+        if (!question.trim() || trimmedOptions.length < MIN_OPTIONS) {
+            setError("Please provide a question and at least 2 options.");
+            setLoading(false);
+            return;
         }
+        
+        try {
+            const { data: pollId, error } = await supabase
+            .rpc("create_poll", {
+                poll_title: question.trim(),
+                option_labels: trimmedOptions,
+            })
+            .single();
+            
+            if (error) throw error;
+            
+            navigate(`/vote/${pollId}`);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    // Auto-add new option when conditions are met
+    if (canAddOption) {
+        setOptions((prev) => [...prev, ""]);
     }
-
-    // show two links, one for voting page, one for results page
-  }
-
-  // Auto-add new option when conditions are met
-  if (canAddOption) {
-    setOptions((prev) => [...prev, ""]);
-  }
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div>
+    
+    return (
+        <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
         <label>
-          Question
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            required
-            autoFocus
-          />
+        Question
+        <input
+        type="text"
+        value={question}
+        onChange={(e) => setQuestion(e.target.value)}
+        required
+        autoFocus
+        style={{ width: "100%", padding: 6, marginTop: 4 }}
+        />
         </label>
-      </div>
-
-      <fieldset>
+        </div>
+        
+        <fieldset style={{ marginBottom: 12 }}>
         <legend>Options</legend>
-
+        
         {options.map((option, i) => (
-          <div key={i}>
+            <div key={i} style={{ marginBottom: 6 }}>
             <input
-              type="text"
-              value={option}
-              placeholder={`Enter poll option...`}
-              onChange={(e) => updateOption(i, e.target.value)}
-              required={i < MIN_OPTIONS}
+            type="text"
+            value={option}
+            placeholder={`#${i + 1}`}
+            onChange={(e) => updateOption(i, e.target.value)}
+            required={i < MIN_OPTIONS}
+            style={{ width: "100%", padding: 6 }}
             />
-          </div>
+            </div>
         ))}
-      </fieldset>
-
-      <button
+        </fieldset>
+        
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        
+        <button
         type="submit"
         disabled={
-          !question.trim() ||
-          options.filter((o) => o.trim()).length < MIN_OPTIONS
+            loading ||
+            !question.trim() ||
+            options.filter((o) => o.trim()).length < MIN_OPTIONS
         }
-      >
-        Create
-      </button>
-    </form>
-  );
+        style={{ padding: "8px 16px", cursor: loading ? "not-allowed" : "pointer" }}
+        >
+        {loading ? "Creating…" : "Create poll"}
+        </button>
+        </form>
+    );
 }

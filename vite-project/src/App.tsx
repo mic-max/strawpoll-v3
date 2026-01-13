@@ -1,12 +1,19 @@
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import CreatePollForm from "./components/CreatePollForm";
+import VotePoll from "./components/VotePoll";
 
-import CreatePollForm from './components/CreatePollForm';
+import './App.css'
 
 function App() {
   return (
     <>
       <h1>Strawpoll</h1>
-      <CreatePollForm></CreatePollForm>
+      <Router>
+        <Routes>
+          <Route path="/" element={<CreatePollForm />} />
+          <Route path="/vote/:pollId" element={<VotePoll />} />
+        </Routes>
+      </Router>
     </>
   )
 }
