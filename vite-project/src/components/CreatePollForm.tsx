@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useSearchParams } from "react-router-dom";
 import supabase from '../utils/supabase'
 
 const MIN_OPTIONS = 2;
@@ -8,11 +7,11 @@ const MAX_OPTIONS = 16;
 
 export default function CreatePollForm() {
     const navigate = useNavigate();
-    const [question, setQuestion] = useState("");
+    const [title, setTitle] = useState("");
     const [options, setOptions] = useState<string[]>(["", ""]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    // TODO: maybe load question and options from query params?
+    const [searchParams] = useSearchParams();
 
     // Auto-add a new option if last two are filled
     const canAddOption =
@@ -20,6 +19,26 @@ export default function CreatePollForm() {
     options[options.length - 1].trim() !== "" &&
     options[options.length - 2].trim() !== "";
     
+    useEffect(() => {
+    const titleParam = searchParams.get("title");
+    const optionsParam = searchParams.get("options");
+
+    if (titleParam) {
+        setTitle(titleParam);
+    }
+
+    if (optionsParam) {
+        const parsedOptions = optionsParam
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean)
+        .slice(0, 16);
+
+        setOptions(parsedOptions);
+    }
+    }, [searchParams]);
+
+
     useEffect(() => {
         if (canAddOption) setOptions((prev) => [...prev, ""]);
     }, [canAddOption]);
@@ -39,8 +58,8 @@ export default function CreatePollForm() {
         
         const trimmedOptions = options.map((o) => o.trim()).filter(Boolean);
         
-        if (!question.trim() || trimmedOptions.length < MIN_OPTIONS) {
-            setError("Please provide a question and at least 2 options.");
+        if (!title.trim() || trimmedOptions.length < MIN_OPTIONS) {
+            setError("Please provide a title and at least 2 options.");
             setLoading(false);
             return;
         }
@@ -48,14 +67,14 @@ export default function CreatePollForm() {
         try {
             const { data: pollId, error } = await supabase
             .rpc("create_poll", {
-                poll_title: question.trim(),
+                poll_title: title.trim(),
                 option_labels: trimmedOptions,
             })
             .single();
             
             if (error) throw error;
-            
-            navigate(`/vote/${pollId}`);
+
+            navigate(`/${pollId}`);
         } catch (err: any) {
             console.error(err);
             setError(err.message || "Something went wrong");
@@ -71,49 +90,48 @@ export default function CreatePollForm() {
     
     return (
         <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 12 }}>
-        <label>
-        Question
+        <div>
+        <label className='title'>
+        Title
         <input
         type="text"
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
         required
         autoFocus
-        style={{ width: "100%", padding: 6, marginTop: 4 }}
+        placeholder="Type your question here"
         />
         </label>
         </div>
-        
-        <fieldset style={{ marginBottom: 12 }}>
-        <legend>Options</legend>
+
+        <fieldset>
+        <legend>Answer Options</legend>
         
         {options.map((option, i) => (
-            <div key={i} style={{ marginBottom: 6 }}>
+            <div key={i}>
             <input
             type="text"
             value={option}
-            placeholder={`#${i + 1}`}
             onChange={(e) => updateOption(i, e.target.value)}
             required={i < MIN_OPTIONS}
-            style={{ width: "100%", padding: 6 }}
+            placeholder={`Option ${i + 1}`}
             />
             </div>
         ))}
         </fieldset>
         
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="error">{error}</p>}
         
         <button
         type="submit"
         disabled={
             loading ||
-            !question.trim() ||
+            !title.trim() ||
             options.filter((o) => o.trim()).length < MIN_OPTIONS
         }
-        style={{ padding: "8px 16px", cursor: loading ? "not-allowed" : "pointer" }}
+        style={{ cursor: loading ? "not-allowed" : "pointer" }}
         >
-        {loading ? "Creating…" : "Create poll"}
+        {loading ? "Creating…" : "Create Poll"}
         </button>
         </form>
     );

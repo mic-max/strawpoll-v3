@@ -1,52 +1,126 @@
-import { useParams } from "react-router-dom";
-import supabase from "../utils/supabase";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
+import supabase from "../utils/supabase";
+
+type Option = {
+  id: number;
+  label: string;
+};
 
 export default function VotePoll() {
   const { pollId } = useParams<{ pollId: string }>();
-  const [poll, setPoll] = useState<any>(null);
-  const [options, setOptions] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [pollTitle, setPollTitle] = useState("");
+  const [options, setOptions] = useState<Option[]>([]);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Preselect option from ?option=<id>
+  useEffect(() => {
+    const optionParam = searchParams.get("option");
+    if (!optionParam) return;
+
+    const id = Number(optionParam);
+    if (Number.isInteger(id)) {
+      setSelectedOption(id - 1);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
-    async function fetchPoll() {
+    async function loadPoll() {
       if (!pollId) return;
-      setLoading(true);
-      try {
-        const { data: pollData } = await supabase
-          .from("polls")
-          .select("*")
-          .eq("id", pollId)
-          .single();
 
-        const { data: optionData } = await supabase
-          .from("options")
-          .select("*")
-          .eq("poll_id", pollId)
-          .order("id", { ascending: true });
+      const { data: poll, error: pollError } = await supabase
+        .from("polls")
+        .select("title")
+        .eq("id", pollId)
+        .single();
 
-        setPoll(pollData);
-        setOptions(optionData || []);
-      } finally {
-        setLoading(false);
+      const { data: opts, error: optError } = await supabase
+        .from("options")
+        .select("id, label")
+        .eq("poll_id", pollId)
+        .order("id");
+
+      if (pollError || optError || !poll || !opts) {
+        setError("Poll not found");
+      } else {
+        setPollTitle(poll.title);
+        setOptions(opts);
       }
+
+      setLoading(false);
     }
 
-    fetchPoll();
+    loadPoll();
   }, [pollId]);
 
-  if (loading) return <p>Loading...</p>;
-  if (!poll) return <p>Poll not found</p>;
+  async function submitVote(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (selectedOption === null || !pollId) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.rpc("submit_vote", {
+        poll_id: Number(pollId),
+        option_id: selectedOption,
+      });
+
+      if (error) throw error;
+
+      navigate(`/${pollId}/results`);
+    } catch (err: any) {
+      setError(err.message || "Failed to submit vote");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) return <p>Loading…</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
     <div>
-      <h2>{poll.title}</h2>
-      <ul>
-        {options.map((o) => (
-          <li key={o.id}>{o.label}</li>
-        ))}
-      </ul>
-      {/* TODO: add vote buttons */}
+      <h2>{pollTitle}</h2>
+
+      <form onSubmit={submitVote}>
+        <fieldset>
+            <legend>Make A Choice</legend>
+          {options.map((option, index) => (
+            <label key={option.id} className="radio-row">
+              <span>{index + 1}.</span>
+              <input
+                type="radio"
+                name="poll-option"
+                value={option.id}
+                checked={selectedOption === option.id}
+                onChange={() => setSelectedOption(option.id)}
+                />
+                <span>{option.label}</span>
+            </label>
+          ))}
+        </fieldset>
+
+        {error && <p className="error">{error}</p>}
+
+        <div className="buttons">
+          <button
+            type="submit"
+            disabled={selectedOption === null || submitting}
+          >
+            {submitting ? "Voting…" : "Vote"}
+          </button>
+
+          <Link to={`/${pollId}/results`}>Show Results</Link>
+        </div>
+      </form>
     </div>
   );
 }
