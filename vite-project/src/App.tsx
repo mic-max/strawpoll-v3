@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CreatePollForm from "./components/CreatePollForm";
 import VotePoll from "./components/VotePoll";
 
-import './App.css'
-
 function App() {
   return (
     <>
