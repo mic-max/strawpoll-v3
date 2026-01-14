@@ -27,7 +27,7 @@ export default function PollResults() {
     async function loadResults() {
         if (!pollId) return;
 
-        const { data } = await supabase.rpc<LoadResultsRow>("load_results", {
+        const { data } = await supabase.rpc("load_results", {
             poll_id: Number(pollId),
         });
 
@@ -38,14 +38,14 @@ export default function PollResults() {
 
         setTitle(data[0].poll_title);
 
-        const results = data.map(row => ({
+        const results = data.map((row: LoadResultsRow) => ({
             id: row.option_id,
             label: row.option_label,
             votes: row.vote_count,
         }))
-            .sort((a, b) => b.votes - a.votes);
+            .sort((a: OptionResult, b: OptionResult) => b.votes - a.votes);
 
-        const totalVotes = results.reduce((sum, r) => sum + r.votes, 0);
+        const totalVotes = results.reduce((sum: number, r: OptionResult) => sum + r.votes, 0);
 
         setResults(results);
         setTotalVotes(totalVotes);
@@ -53,7 +53,11 @@ export default function PollResults() {
     }
 
     useEffect(() => {
-        loadResults();
+        const fetchResults = () => {
+            loadResults(); // call your async function, don't await it here
+        };
+        fetchResults();
+
 
         const channel = supabase
             .channel(`votes-poll-${pollId}`)
@@ -90,7 +94,9 @@ export default function PollResults() {
             });
 
 
-        return () => supabase.removeChannel(channel);
+        return () => {
+            void supabase.removeChannel(channel); // ignore Promise
+        };
 
     }, [pollId]);
 

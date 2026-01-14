@@ -37,13 +37,13 @@ export default function VotePoll() {
             const { data: poll, error: pollError } = await supabase
                 .from("polls")
                 .select("title")
-                .eq("id", pollId)
+                .eq("id", Number(pollId))
                 .single();
 
             const { data: opts, error: optError } = await supabase
                 .from("options")
                 .select("id, label")
-                .eq("poll_id", pollId)
+                .eq("poll_id", Number(pollId))
                 .order("id");
 
             if (pollError || optError || !poll || !opts) {
