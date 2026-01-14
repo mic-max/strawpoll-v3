@@ -44,18 +44,23 @@ legend {
     accent-color: black;
 }
 
-input {
+textarea {
+    resize: vertical;
+}
+
+input, textarea {
+    font-family: inherit;
     border-radius: 0;
     border: 1px solid black;
     padding: 4px;
     margin-bottom: 6px;
 }
 
-input[type="text"] {
+input[type="text"], textarea {
     width: 100%;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus, textarea:focus {
     outline: none;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
