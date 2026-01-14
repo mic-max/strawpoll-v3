@@ -11,7 +11,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<CreatePollForm />} />
                     <Route path="/:pollId" element={<VotePoll />} />
-                    <Route path="/:pollId/results" element={<PollResults />} />
+                    <Route path="/:pollId/r" element={<PollResults />} />
                 </Routes>
             </Router>
         </>

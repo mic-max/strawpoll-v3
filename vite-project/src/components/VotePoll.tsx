@@ -118,7 +118,7 @@ export default function VotePoll() {
                         {submitting ? "Voting…" : "Vote"}
                     </button>
 
-                    <Link to={`/${pollId}/results`}>Show Results</Link>
+                    <Link to={`/${pollId}/r`}>Show Results</Link>
                 </div>
             </form>
         </div>
