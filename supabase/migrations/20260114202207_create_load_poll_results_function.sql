@@ -18,6 +18,7 @@ as $$
     on o.poll_id = p.id
   left join votes v
     on v.option_id = o.id
+    and v.poll_id = p.id       -- <--- filter votes to this poll only
   where p.id = load_results.poll_id
   group by
     p.title,
