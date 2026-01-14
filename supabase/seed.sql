@@ -2,7 +2,7 @@ BEGIN;
 
 WITH new_poll AS (
   INSERT INTO polls (title)
-  VALUES ('Favorite programming language?')
+  VALUES ('What is your favourite movie?')
   RETURNING id
 ),
 new_options AS (
@@ -14,18 +14,27 @@ new_options AS (
   FROM new_poll
   CROSS JOIN (
     VALUES
-      (0, 'C'),
-      (1, 'Python'),
-      (2, 'Java')
+      (1, 'Waking Life (2001)'),
+      (2, 'Nightcrawler (2014)'),
+      (3, 'Eternal Sunshine of the Spotless Mind (2004)'),
+      (4, 'Before Sunrise (1995)')
   ) AS opt(id, label)
   RETURNING poll_id, id
 )
-INSERT INTO votes (poll_id, option_id, ipv4)
-SELECT
-  new_options.poll_id,
-  0,
-  inet '192.168.1.10'
-FROM new_options
-WHERE id = 0;
+
+insert into votes (poll_id, option_id, ipv4)
+select
+  1 as poll_id,
+  option_id,
+  inet '10.0.0.0' + row_number() over () as ipv4
+from (
+  select 1 as option_id, generate_series(1, 200)
+  union all
+  select 2, generate_series(1, 145)
+  union all
+  select 3, generate_series(1, 639)
+  union all
+  select 4, generate_series(1, 439)
+) s;
 
 COMMIT;
