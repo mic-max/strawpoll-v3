@@ -35,19 +35,19 @@ from
     (
         select
             1 as option_id,
-            generate_series (1, 200)
+            generate_series (1, 10)
         union all
         select
             2,
-            generate_series (1, 145)
+            generate_series (1, 13)
         union all
         select
             3,
-            generate_series (1, 639)
+            generate_series (1, 13)
         union all
         select
             4,
-            generate_series (1, 439)
+            generate_series (1, 19)
     ) s;
 
 COMMIT;
