@@ -18,12 +18,11 @@ type LoadResultsRow = {
 export default function PollResults() {
     const { pollId } = useParams<{ pollId: string }>();
 
+    const [loading, setLoading] = useState(true);
+    const [totalVotes, setTotalVotes] = useState(0);
     const [title, setTitle] = useState("");
     const [results, setResults] = useState<OptionResult[]>([]);
-    const [totalVotes, setTotalVotes] = useState(0);
-    const [loading, setLoading] = useState(true);
-
-    const channel = supabase.channel(`votes:${pollId}`)
+    const [subscribed, setSubscribed] = useState("Connecting...");
 
     async function loadResults() {
         if (!pollId) return;
@@ -31,9 +30,8 @@ export default function PollResults() {
         const { data } = await supabase.rpc<LoadResultsRow>("load_results", {
             poll_id: Number(pollId),
         });
-        console.log(data)
+
         if (!data || data.length === 0) {
-            // setError("No results found");
             setLoading(false);
             return;
         }
@@ -47,10 +45,7 @@ export default function PollResults() {
         }))
             .sort((a, b) => b.votes - a.votes);
 
-        const totalVotes = results.reduce(
-            (sum, r) => sum + r.votes,
-            0
-        );
+        const totalVotes = results.reduce((sum, r) => sum + r.votes, 0);
 
         setResults(results);
         setTotalVotes(totalVotes);
@@ -60,26 +55,45 @@ export default function PollResults() {
     useEffect(() => {
         loadResults();
 
-        if (!pollId) return;
-
-        // Realtime updates
-        channel
+        const channel = supabase
+            .channel(`votes-poll-${pollId}`)
             .on(
-                "postgres_changes",
+                'postgres_changes',
                 {
-                    event: "INSERT",
-                    schema: "public",
+                    schema: 'public',
                     table: "votes",
+                    event: 'INSERT',
                     filter: `poll_id=eq.${pollId}`,
                 },
-                loadResults
-            )
-            .subscribe();
+                (payload) => {
+                    const optionId = payload.new.option_id;
 
-        return () => {
-            supabase.removeChannel(channel);
-        };
+                    // Update results state
+                    setResults(prevResults =>
+                        prevResults.map(option =>
+                            option.id === optionId
+                                ? { ...option, votes: option.votes + 1 }
+                                : option
+                        ).sort((a, b) => b.votes - a.votes) // keep descending
+                    );
+
+                    // Update total votes
+                    setTotalVotes(prevTotal => prevTotal + 1);
+                }
+            )
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    setSubscribed("Live Results");
+                } else {
+                    setSubscribed("Not Live");
+                }
+            });
+
+
+        return () => supabase.removeChannel(channel);
+
     }, [pollId]);
+
 
     if (loading) return <p>Loading results…</p>;
 
@@ -124,7 +138,7 @@ export default function PollResults() {
 
             {/* rename bellow div class to actions? */}
             <div className='buttons'>
-                <p>Live Results</p>
+                <p>{subscribed}</p>
                 <Link to={`/${pollId}`}>Back to Poll</Link>
             </div>
             <p>Votes: {totalVotes.toLocaleString()}</p>
