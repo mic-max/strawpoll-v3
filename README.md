@@ -19,6 +19,7 @@ You must generate a migration file for those declarative schemas
 
 
 `npx supabase gen types typescript --local > database.types.ts`
+`npx supabase db reset --link` reset the linked production supabase database
 
 create poll with title and options pre-typed out
 <http://localhost:5173/?title=What%20is%20your%20favourite%20movie?&options=Waking%20Life%20(2001),Fury%20(2014),Nightcrawler%20(2014),Before%20Sunrise%20(1995)>
