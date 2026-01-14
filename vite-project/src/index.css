@@ -2,7 +2,6 @@ body {
     margin: 0;
     display: flex;
     min-width: 320px;
-    min-height: 100vh;
     font-family: 'Times New Roman', Times, serif;
     font-variant: small-caps;
 }
@@ -46,9 +45,11 @@ legend {
 
 textarea {
     resize: vertical;
+    min-height: 1.5em;
 }
 
-input, textarea {
+input,
+textarea {
     font-family: inherit;
     border-radius: 0;
     border: 1px solid black;
@@ -56,11 +57,13 @@ input, textarea {
     margin-bottom: 6px;
 }
 
-input[type="text"], textarea {
+input[type="text"],
+textarea {
     width: 100%;
 }
 
-input[type="text"]:focus, textarea:focus {
+input[type="text"]:focus,
+textarea:focus {
     outline: none;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
@@ -101,11 +104,18 @@ button {
     font-size: 24px;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+}
+
 .buttons {
     margin: 12px 0;
     display: flex;
     flex-direction: row;
-    justify-content:left;
+    justify-content: left;
     gap: 20px;
 }
 

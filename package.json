@@ -1,15 +1,15 @@
 {
-  "name": "vite",
-  "version": "1.0.0",
-  "description": "Strawpoll web application.",
-  "license": "ISC",
-  "author": "Michael Maxwell",
-  "type": "commonjs",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "supabase": "^2.72.4"
-  }
+    "name": "vite",
+    "version": "1.0.0",
+    "description": "Strawpoll web application.",
+    "license": "ISC",
+    "author": "Michael Maxwell",
+    "type": "commonjs",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+        "supabase": "^2.72.4"
+    }
 }
