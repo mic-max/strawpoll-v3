@@ -1,3 +1,7 @@
+# Straw Poll
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/8cb2dc2e-11d4-43ce-aaa1-7aa460456fba/deploy-status)](https://app.netlify.com/projects/graceful-beijinho-cc80b0/deploys)
+
 `npx supabase init`
 `npx supabase start`
 
@@ -27,6 +31,9 @@ create poll with title and options pre-typed out
 open poll and hover the option in query params. 1 indexed.
 <http://localhost:5173/6?option=1>
 
+## Netlify
+Copy production .env to the project
+Get it by on supabase click connect. then select app frameworks React, Vite and copy the .env contents
 
 ## TODO
 database
@@ -56,6 +63,7 @@ looks
 - linting
 - handle inputs that will wrap multiple lines
 - add throbber for loading
+    - throttle local development so you can see what a slow load looks like
 - display errors nicely
 - clearly disable buttons
 - replace loading text, with a rolling gradient for the fields that are loading, emulate the look of the final webpage?
@@ -71,3 +79,4 @@ tests
 - add front end tests
 - add backend tests
 - add integration tests
+- add status badges to readme
