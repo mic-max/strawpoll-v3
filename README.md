@@ -45,7 +45,6 @@ production
 - github actions to publish the vite project to netlify?
 
 functionality
-- enable live results on the results page
 - synchronize the url with the form?
 - target the create poll button if a title and >=2 options are supplied from query params
 - add arrow navigation to go next/prev poll
