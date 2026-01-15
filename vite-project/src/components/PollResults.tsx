@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import supabase from "../utils/supabase";
+import ProgressBar from "./ProgressBar";
 
 type OptionResult = {
     id: number;
@@ -74,6 +75,8 @@ export default function PollResults() {
                     const optionId = payload.new.option_id;
 
                     // Update results state
+                    // TODO: bug where it loads page faster than supabase sends the realtime update so it gets an additional vote
+                    // solution would be to simply send all the options vote numbers instead of 1 request and manually incrementing
                     setResults(prevResults =>
                         prevResults.map(option =>
                             option.id === optionId
@@ -116,34 +119,19 @@ export default function PollResults() {
                 const percent = Math.round(percentNonRounded);
 
                 return (
-                    <div key={option.id} style={{ marginBottom: 12 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div key={option.id} className="optionResult">
+                        <div className="optionResultInfo">
                             {option.label}
                             <span>
                                 {percent}% ({option.votes} votes)
                             </span>
                         </div>
 
-                        <div
-                            style={{
-                                height: 10,
-                                background: "lightgrey",
-                                overflow: "hidden",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: `${percentNonRounded}%`,
-                                    height: "100%",
-                                    background: "black",
-                                }}
-                            />
-                        </div>
+                        <ProgressBar percent={percentNonRounded}/>
                     </div>
                 );
             })}
 
-            {/* rename bellow div class to actions? */}
             <div className='buttons'>
                 <p>{subscribed}</p>
                 <Link to={`/${Number(pollId) - 1}/r`}>Prev</Link>

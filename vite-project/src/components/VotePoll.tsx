@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
+import AsyncButton from "./AsyncButton"
 import supabase from "../utils/supabase";
 
 type Option = {
@@ -40,11 +41,13 @@ export default function VotePoll() {
 
         if (error) {
             console.error(error);
+            setLoading(false)
             return;
         }
 
         if (!data || data.length === 0) {
             console.warn("Poll not found");
+            setLoading(false)
             return;
         }
 
@@ -101,7 +104,7 @@ export default function VotePoll() {
 
             <form onSubmit={submitVote}>
                 <fieldset>
-                    <legend>Make A Choice</legend>
+                    <legend>Make a Choice</legend>
                     {options.map((option, index) => (
                         <label key={option.id} className="radio-row">
                             <span>{index + 1}.</span>
@@ -112,7 +115,7 @@ export default function VotePoll() {
                                 checked={selectedOption === option.id}
                                 onChange={() => setSelectedOption(option.id)}
                             />
-                            <span>{option.label}</span>
+                            <span className="voteOption">{option.label}</span>
                         </label>
                     ))}
                 </fieldset>
@@ -120,13 +123,13 @@ export default function VotePoll() {
                 {error && <p className="error">{error}</p>}
 
                 <div className="buttons">
-                    <button
+                    <AsyncButton
                         type="submit"
-                        disabled={selectedOption === null || submitting}
-                    >
-                        {submitting ? "Voting…" : "Vote"}
-                    </button>
-
+                        label="Vote"
+                        loadingLabel="Voting…"
+                        loading={submitting}
+                        disabled={selectedOption === null}
+                    />
                     <Link to={`/${pollIdNumber - 1}`}>Prev</Link>
                     <Link to={`/${pollIdNumber + 1}`}>Next</Link>
                     <Link to={`/${pollIdNumber}/r`}>Show Results</Link>

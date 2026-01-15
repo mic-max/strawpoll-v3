@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import AsyncButton from "./AsyncButton"
 import supabase from '../utils/supabase'
 
 const MIN_OPTIONS = 2;
@@ -18,6 +19,12 @@ export default function CreatePollForm() {
         options.length < MAX_OPTIONS &&
         options[options.length - 1].trim() !== "" &&
         options[options.length - 2].trim() !== "";
+
+    function canSubmit() {
+        return title.trim() &&
+            options.filter((o) => o.trim()).length >= MIN_OPTIONS
+        // TODO check that options are unique
+    }
 
     useEffect(() => {
         const titleParam = searchParams.get("title");
@@ -52,7 +59,6 @@ export default function CreatePollForm() {
     };
 
     async function handleSubmit(e: React.FormEvent) {
-        console.log('handleSubmit()')
         e.preventDefault();
         setLoading(true);
         setError(null);
@@ -91,50 +97,52 @@ export default function CreatePollForm() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div>
-                <label className='title'>
-                    Title
-                    <textarea
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                        autoFocus
-                        placeholder="Type your question here"
-                    />
-                </label>
-            </div>
+            <fieldset>
+                <legend>Title</legend>
+                <textarea
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    autoFocus
+                    // placeholder="Type your question here"
+                />
+            </fieldset>
 
             <fieldset>
-                <legend>Answer Options</legend>
+                <legend>Options</legend>
 
                 {options.map((option, i) => (
-                    <div key={i}>
-                        <input
-                            type="text"
-                            value={option}
-                            onChange={(e) => updateOption(i, e.target.value)}
-                            required={i < MIN_OPTIONS}
-                            placeholder={`Option ${i + 1}`}
-                        />
+                    <div>
+                        <label htmlFor={`option-${i}`}>
+                            <span>{i + 1}.</span>
+
+                            <input
+                                className="createOption"
+                                id={`option-${i}`}
+                                name={`option-${i}`}
+                                key={i}
+                                type="text"
+                                value={option}
+                                onChange={(e) => updateOption(i, e.target.value)}
+                                required={i < MIN_OPTIONS}
+                                // placeholder={`Option ${i + 1}`}
+                            />
+                        </label>
                     </div>
                 ))}
             </fieldset>
 
             {error && <p className="error">{error}</p>}
 
-            <div className="buttons">
-
-                <button
+            <div>
+                <AsyncButton
                     type="submit"
-                    disabled={
-                        loading ||
-                        !title.trim() ||
-                        options.filter((o) => o.trim()).length < MIN_OPTIONS
-                    }
-                // style={{ cursor: loading ? "not-allowed" : "pointer" }}
-                >
-                    {loading ? "Creating…" : "Create Poll"}
-                </button>
+                    label="Create Poll"
+                    loadingLabel="Creating…"
+                    loading={loading}
+                    disabled={!canSubmit()}
+                />
             </div>
         </form>
     );
