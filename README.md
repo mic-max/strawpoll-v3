@@ -63,7 +63,6 @@ looks
 - display errors nicely
 - clearly disable buttons
 - replace loading text, with a rolling gradient for the fields that are loading, emulate the look of the final webpage?
-- make the <title> match the poll title on voting and poll pages.
 - show which option the user voted for (help show it was actually recorded)
 - grow textarea vertically as needed. no scrollbar. hide resize dragging corner.
 - ensure percents total to 100% when handling the rounding.

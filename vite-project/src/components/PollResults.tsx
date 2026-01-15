@@ -53,6 +53,7 @@ export default function PollResults() {
     }
 
     useEffect(() => {
+        document.title = `Results: ${title} | Straw Poll`
         const fetchResults = () => {
             loadResults(); // call your async function, don't await it here
         };
@@ -98,7 +99,7 @@ export default function PollResults() {
             void supabase.removeChannel(channel); // ignore Promise
         };
 
-    }, [pollId]);
+    }, [pollId, title]);
 
 
     if (loading) return <p>Loading results…</p>;

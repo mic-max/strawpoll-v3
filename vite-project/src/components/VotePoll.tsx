@@ -31,6 +31,8 @@ export default function VotePoll() {
     }, [searchParams]);
 
     useEffect(() => {
+        document.title = `${pollTitle} | Straw Poll`
+
         async function loadPoll() {
             if (!pollId) return;
 
@@ -57,7 +59,7 @@ export default function VotePoll() {
         }
 
         loadPoll();
-    }, [pollId]);
+    }, [pollId, pollTitle]);
 
     async function submitVote(e: React.FormEvent) {
         e.preventDefault();
