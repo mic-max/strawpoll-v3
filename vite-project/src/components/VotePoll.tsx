@@ -9,6 +9,8 @@ type Option = {
 
 export default function VotePoll() {
     const { pollId } = useParams<{ pollId: string }>();
+    const pollIdNumber = pollId ? parseInt(pollId, 10) : 0;
+
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
@@ -30,35 +32,39 @@ export default function VotePoll() {
         }
     }, [searchParams]);
 
-    useEffect(() => {
-        document.title = `${pollTitle} | Straw Poll`
+    async function fetchPoll(pollIdNumber: number) {
+        const { data, error } = await supabase
+            .from("poll_with_options")
+            .select("poll_title, option_id, option_label")
+            .eq("poll_id", pollIdNumber);
 
-        async function loadPoll() {
-            if (!pollId) return;
-
-            const { data: poll, error: pollError } = await supabase
-                .from("polls")
-                .select("title")
-                .eq("id", Number(pollId))
-                .single();
-
-            const { data: opts, error: optError } = await supabase
-                .from("options")
-                .select("id, label")
-                .eq("poll_id", Number(pollId))
-                .order("id");
-
-            if (pollError || optError || !poll || !opts) {
-                setError("Poll not found");
-            } else {
-                setPollTitle(poll.title);
-                setOptions(opts);
-            }
-
-            setLoading(false);
+        if (error) {
+            console.error(error);
+            return;
         }
 
-        loadPoll();
+        if (!data || data.length === 0) {
+            console.warn("Poll not found");
+            return;
+        }
+
+        // Set title
+        const title = data[0].poll_title;
+        setPollTitle(title);
+
+        // Map options
+        const options: Option[] = data.map(row => ({
+            id: row.option_id,
+            label: row.option_label
+        }));
+
+        setOptions(options);
+        setLoading(false);
+    }
+
+    useEffect(() => {
+        document.title = `${pollTitle} | Straw Poll`
+        fetchPoll(pollIdNumber);
     }, [pollId, pollTitle]);
 
     async function submitVote(e: React.FormEvent) {
@@ -71,18 +77,19 @@ export default function VotePoll() {
 
         try {
             const { error } = await supabase.rpc("submit_vote", {
-                poll_id: Number(pollId),
+                poll_id: pollIdNumber,
                 option_id: selectedOption,
             });
 
             if (error) throw error;
 
-            navigate(`/${pollId}/r`);
+            navigate(`/${pollIdNumber}/r`);
         } catch (err: any) {
             setError(err.message || "Failed to submit vote");
         } finally {
             setSubmitting(false);
         }
+        setLoading(true)
     }
 
     if (loading) return <p>Loading…</p>;
@@ -120,9 +127,9 @@ export default function VotePoll() {
                         {submitting ? "Voting…" : "Vote"}
                     </button>
 
-                    <Link to={`/${Number(pollId) - 1}`}>Prev</Link>
-                    <Link to={`/${Number(pollId) + 1}`}>Next</Link>
-                    <Link to={`/${pollId}/r`}>Show Results</Link>
+                    <Link to={`/${pollIdNumber - 1}`}>Prev</Link>
+                    <Link to={`/${pollIdNumber + 1}`}>Next</Link>
+                    <Link to={`/${pollIdNumber}/r`}>Show Results</Link>
                 </div>
             </form>
         </div>
