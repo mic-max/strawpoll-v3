@@ -57,7 +57,6 @@ content
 - add a footer with links, github repo, micmax.pw, etc.
 
 looks
-- replace favicon with something black and white
 - styling
 - css variables
 - linting
