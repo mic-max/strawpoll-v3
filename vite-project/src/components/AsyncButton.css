@@ -9,8 +9,9 @@
     font-size: 1em;
 }
 
-.async-button:hover:not(:disabled) {
-    background-color: var(--mediumdark);
+.async-button:hover:not(:disabled),
+.async-button:focus {
+    color: var(--medium);
 }
 
 .async-button:disabled {

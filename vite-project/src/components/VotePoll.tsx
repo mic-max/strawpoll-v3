@@ -29,7 +29,7 @@ export default function VotePoll() {
 
         const id = Number(optionParam);
         if (Number.isInteger(id)) {
-            setSelectedOption(id - 1);
+            setSelectedOption(id);
         }
     }, [searchParams]);
 
@@ -130,9 +130,9 @@ export default function VotePoll() {
                         loading={submitting}
                         disabled={selectedOption === null}
                     />
+                    <Link to={`/${pollIdNumber}/r`}>Show Results</Link>
                     <Link to={`/${pollIdNumber - 1}`}>Prev</Link>
                     <Link to={`/${pollIdNumber + 1}`}>Next</Link>
-                    <Link to={`/${pollIdNumber}/r`}>Show Results</Link>
                 </div>
             </form>
         </div>

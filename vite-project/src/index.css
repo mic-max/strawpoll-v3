@@ -50,6 +50,7 @@ footer {
     padding: 4px 8px;
     cursor: pointer;
     border: 1px solid var(--dark);
+    align-items: flex-start;
 }
 
 input[type="radio"] {

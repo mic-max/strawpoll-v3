@@ -105,7 +105,6 @@ export default function CreatePollForm() {
                     onChange={(e) => setTitle(e.target.value)}
                     required
                     autoFocus
-                    // placeholder="Type your question here"
                 />
             </fieldset>
 
@@ -113,20 +112,19 @@ export default function CreatePollForm() {
                 <legend>Options</legend>
 
                 {options.map((option, i) => (
-                    <div>
+                    <div key={i}>
                         <label htmlFor={`option-${i}`}>
                             <span>{i + 1}.</span>
 
                             <input
                                 className="createOption"
+                                autoComplete="off"
                                 id={`option-${i}`}
                                 name={`option-${i}`}
-                                key={i}
                                 type="text"
                                 value={option}
                                 onChange={(e) => updateOption(i, e.target.value)}
                                 required={i < MIN_OPTIONS}
-                                // placeholder={`Option ${i + 1}`}
                             />
                         </label>
                     </div>

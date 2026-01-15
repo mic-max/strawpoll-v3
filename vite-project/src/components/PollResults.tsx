@@ -134,9 +134,9 @@ export default function PollResults() {
 
             <div className='buttons'>
                 <p>{subscribed}</p>
+                <Link to={`/${pollId}`}>Back to Poll</Link>
                 <Link to={`/${Number(pollId) - 1}/r`}>Prev</Link>
                 <Link to={`/${Number(pollId) + 1}/r`}>Next</Link>
-                <Link to={`/${pollId}`}>Back to Poll</Link>
             </div>
             <p>Votes: {totalVotes.toLocaleString()}</p>
         </div>
