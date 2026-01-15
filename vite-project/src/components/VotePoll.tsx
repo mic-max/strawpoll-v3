@@ -120,6 +120,8 @@ export default function VotePoll() {
                         {submitting ? "Voting…" : "Vote"}
                     </button>
 
+                    <Link to={`/${Number(pollId) - 1}`}>Prev</Link>
+                    <Link to={`/${Number(pollId) + 1}`}>Next</Link>
                     <Link to={`/${pollId}/r`}>Show Results</Link>
                 </div>
             </form>

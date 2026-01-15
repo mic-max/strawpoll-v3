@@ -146,6 +146,8 @@ export default function PollResults() {
             {/* rename bellow div class to actions? */}
             <div className='buttons'>
                 <p>{subscribed}</p>
+                <Link to={`/${Number(pollId) - 1}/r`}>Prev</Link>
+                <Link to={`/${Number(pollId) + 1}/r`}>Next</Link>
                 <Link to={`/${pollId}`}>Back to Poll</Link>
             </div>
             <p>Votes: {totalVotes.toLocaleString()}</p>

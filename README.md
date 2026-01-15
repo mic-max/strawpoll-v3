@@ -47,7 +47,6 @@ production
 functionality
 - synchronize the url with the form?
 - target the create poll button if a title and >=2 options are supplied from query params
-- add arrow navigation to go next/prev poll
 - add optiona description and image to a poll.
 - add a button to go to a random poll
 - when viewing results or voting, let any DB updates modify that page. for example if a option is removed or edited.
