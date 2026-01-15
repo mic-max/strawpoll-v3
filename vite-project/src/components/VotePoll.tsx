@@ -75,7 +75,7 @@ export default function VotePoll() {
 
             if (error) throw error;
 
-            navigate(`/${pollId}/results`);
+            navigate(`/${pollId}/r`);
         } catch (err: any) {
             setError(err.message || "Failed to submit vote");
         } finally {
