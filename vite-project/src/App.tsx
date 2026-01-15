@@ -14,6 +14,11 @@ function App() {
                     <Route path="/:pollId/r" element={<PollResults />} />
                 </Routes>
             </Router>
+            <footer>
+                <a href="/1/">Demo Poll</a>
+                <a href="https://github.com/mic-max/strawpoll-v3">GitHub Repository</a>
+                <p>Made by <a href="https://micmax.pw">micmax</a></p>
+            </footer>
         </>
     )
 }

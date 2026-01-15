@@ -26,6 +26,12 @@ legend {
     font-size: 1em;
 }
 
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .radio-row {
     padding: 12px;
     align-items: center;

@@ -53,9 +53,6 @@ functionality
 - add a button to go to a random poll
 - when viewing results or voting, let any DB updates modify that page. for example if a option is removed or edited.
 
-content
-- add a footer with links, github repo, micmax.pw, etc.
-
 looks
 - styling
 - css variables
