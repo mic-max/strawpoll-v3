@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CreatePollForm from "./components/CreatePollForm";
 import VotePoll from "./components/VotePoll";
 import PollResults from "./components/PollResults";
+import NotFound from "./components/NotFound";
 
 function App() {
     return (
@@ -12,6 +13,9 @@ function App() {
                     <Route path="/" element={<CreatePollForm />} />
                     <Route path="/:pollId" element={<VotePoll />} />
                     <Route path="/:pollId/r" element={<PollResults />} />
+
+                    {/* 404 catch-all */}
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </Router>
             <footer>
