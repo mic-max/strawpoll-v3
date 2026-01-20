@@ -84,11 +84,16 @@ export default function VotePoll() {
                 option_id: selectedOption,
             });
 
-            if (error) throw error;
+            if (error) {
+                setLoading(false);
+                console.error(error)
+                throw error;
+            }
 
             navigate(`/${pollIdNumber}/r`);
         } catch (err: any) {
             setError(err.message || "Failed to submit vote");
+            setLoading(false);
         } finally {
             setSubmitting(false);
         }

@@ -52,6 +52,8 @@ security
 
 production
 - github actions to publish the vite project to netlify?
+- dockerize, docker compose?
+- add opentelemetry (to react?)
 
 functionality
 - synchronize the url with the form?
